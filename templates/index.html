@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Penyewaan Kos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Sistem Penyewaan Kos (OOP Python)</h1>
+
+    <div class="box">
+        <h2>Daftar Kamar Kos</h2>
+        <table>
+            <tr>
+                <th>Nomor Kamar</th>
+                <th>Tipe</th>
+                <th>Harga / Bulan</th>
+                <th>Status</th>
+            </tr>
+            {% for k in daftar_kamar %}
+            <tr>
+                <td>{{ k.nomor_kamar }}</td>
+                <td>{{ k.tipe }}</td>
+                <td>Rp{{ "{:,}".format(k.harga_per_bulan) }}</td>
+                <td class="{{ k.status }}">{{ k.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+</html>
