@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from kamar import Kamar
 from penyewa import Penyewa
+from sewa import Sewa
 
 app = Flask(__name__)
 
@@ -12,6 +13,7 @@ daftar_kamar = [
 daftar_kamar[2].sewakan()
 
 daftar_penyewa = []
+daftar_sewa = []
 pesan_hasil = ""
 
 
@@ -24,6 +26,7 @@ def index():
         "index.html",
         daftar_kamar=daftar_kamar,
         daftar_penyewa=daftar_penyewa,
+        daftar_sewa=daftar_sewa,
         pesan=pesan
     )
 
@@ -41,25 +44,44 @@ def input_penyewa():
     return redirect(url_for("index"))
 
 
-@app.route("/cek", methods=["POST"])
-def cek_kamar():
+@app.route("/sewa", methods=["POST"])
+def sewa_kamar():
     global pesan_hasil
-    cari_nomor = request.form["nomor_kamar"]
+    index_penyewa = int(request.form["index_penyewa"])
+    nomor_kamar = request.form["nomor_kamar"]
+    tanggal_mulai = request.form["tanggal_mulai"]
+    durasi_bulan = int(request.form["durasi_bulan"])
+
+    penyewa_dipilih = daftar_penyewa[index_penyewa]
 
     kamar_ditemukan = None
     for k in daftar_kamar:
-        if k.nomor_kamar == cari_nomor:
+        if k.nomor_kamar == nomor_kamar:
             kamar_ditemukan = k
             break
 
-    if kamar_ditemukan:
-        if kamar_ditemukan.tersedia():
-            pesan_hasil = f"Kamar {kamar_ditemukan.nomor_kamar} ({kamar_ditemukan.tipe}) masih tersedia."
-        else:
-            pesan_hasil = f"Maaf, Kamar {kamar_ditemukan.nomor_kamar} tidak tersedia."
-    else:
-        pesan_hasil = f"Kamar dengan nomor '{cari_nomor}' tidak ditemukan."
+    if not kamar_ditemukan:
+        pesan_hasil = f"Kamar dengan nomor '{nomor_kamar}' tidak ditemukan."
+        return redirect(url_for("index"))
 
+    penyewa_dipilih.sewa_kamar(kamar_ditemukan)
+    sewa_baru = Sewa(penyewa_dipilih, kamar_ditemukan, tanggal_mulai, durasi_bulan)
+
+    if sewa_baru.proses_sewa():
+        daftar_sewa.append(sewa_baru)
+        pesan_hasil = f"{penyewa_dipilih.nama} berhasil menyewa Kamar {nomor_kamar}. Total: Rp{sewa_baru.hitung_total():,}"
+    else:
+        pesan_hasil = f"Maaf, Kamar {nomor_kamar} tidak tersedia."
+
+    return redirect(url_for("index"))
+
+
+@app.route("/checkout/<int:index_sewa>", methods=["POST"])
+def checkout(index_sewa):
+    global pesan_hasil
+    sewa_dipilih = daftar_sewa[index_sewa]
+    sewa_dipilih.penyewa.akhiri_sewa(sewa_dipilih)
+    pesan_hasil = f"Sewa selesai, Kamar {sewa_dipilih.kamar.nomor_kamar} kembali tersedia."
     return redirect(url_for("index"))
 
 

@@ -61,11 +61,64 @@
     </div>
 
     <div class="box">
-        <h2>Cek Ketersediaan Kamar</h2>
-        <form action="/cek" method="POST">
-            <input type="text" name="nomor_kamar" placeholder="Masukkan nomor kamar" required>
-            <button type="submit">Cek Kamar</button>
+        <h2>Proses Sewa Kamar</h2>
+        {% if daftar_penyewa %}
+        <form action="/sewa" method="POST">
+            <select name="index_penyewa">
+                {% for p in daftar_penyewa %}
+                <option value="{{ loop.index0 }}">{{ p.nama }} ({{ p.id_penyewa }})</option>
+                {% endfor %}
+            </select>
+
+            <select name="nomor_kamar">
+                {% for k in daftar_kamar %}
+                <option value="{{ k.nomor_kamar }}">
+                    Kamar {{ k.nomor_kamar }} ({{ k.tipe }}) - {{ k.status }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <input type="date" name="tanggal_mulai" required>
+            <input type="number" name="durasi_bulan" min="1" value="1" placeholder="Durasi sewa (bulan)" required>
+            <button type="submit">Proses Sewa</button>
         </form>
+        {% else %}
+        <p>Input data penyewa terlebih dahulu.</p>
+        {% endif %}
+    </div>
+
+    <div class="box">
+        <h2>Pengakhiran Sewa</h2>
+        <table>
+            <tr>
+                <th>Penyewa</th>
+                <th>Kamar</th>
+                <th>Mulai & Durasi</th>
+                <th>Total Biaya</th>
+                <th>Status Sewa</th>
+                <th>Aksi</th>
+            </tr>
+            {% for s in daftar_sewa %}
+            <tr>
+                <td>{{ s.penyewa.nama }}</td>
+                <td>Kamar {{ s.kamar.nomor_kamar }}</td>
+                <td>{{ s.tanggal_mulai }} ({{ s.durasi_bulan }} bln)</td>
+                <td>Rp{{ "{:,}".format(s.hitung_total()) }}</td>
+                <td>{{ "Aktif" if s.aktif else "Selesai" }}</td>
+                <td>
+                    {% if s.aktif %}
+                    <form action="/checkout/{{ loop.index0 }}" method="POST">
+                        <button type="submit" class="btn-merah">Akhiri Sewa</button>
+                    </form>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">Belum ada transaksi sewa.</td></tr>
+            {% endfor %}
+        </table>
     </div>
 
 </body>
