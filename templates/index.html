@@ -9,6 +9,10 @@
 
     <h1>Sistem Penyewaan Kos (OOP Python)</h1>
 
+    {% if pesan %}
+    <div class="alert">-> Hasil: {{ pesan }}</div>
+    {% endif %}
+
     <div class="box">
         <h2>Daftar Kamar Kos</h2>
         <table>
@@ -27,6 +31,41 @@
             </tr>
             {% endfor %}
         </table>
+    </div>
+
+    <div class="box">
+        <h2>Input Data Penyewa</h2>
+        <form action="/penyewa" method="POST">
+            <input type="text" name="id_penyewa" placeholder="Masukkan ID penyewa" required>
+            <input type="text" name="nama" placeholder="Masukkan nama penyewa" required>
+            <input type="text" name="no_telepon" placeholder="Masukkan no telepon" required>
+            <button type="submit">Simpan Penyewa</button>
+        </form>
+
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>No. Telepon</th>
+            </tr>
+            {% for p in daftar_penyewa %}
+            <tr>
+                <td>{{ p.id_penyewa }}</td>
+                <td>{{ p.nama }}</td>
+                <td>{{ p.no_telepon }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3">Belum ada data penyewa.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="box">
+        <h2>Cek Ketersediaan Kamar</h2>
+        <form action="/cek" method="POST">
+            <input type="text" name="nomor_kamar" placeholder="Masukkan nomor kamar" required>
+            <button type="submit">Cek Kamar</button>
+        </form>
     </div>
 
 </body>
