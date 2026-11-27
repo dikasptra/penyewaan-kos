@@ -1,8 +1,8 @@
 class Kamar:
-    def __init__(self, nomor_kamar, tipe, harga_per_bulan):
+    def __init__(self, nomor_kamar, tipe, harga_per_bulan, status="tersedia"):
         self.nomor_kamar = nomor_kamar
         self.tipe = tipe
-        self.__status = "tersedia"
+        self.__status = status
         self.harga_per_bulan = harga_per_bulan
 
     @property

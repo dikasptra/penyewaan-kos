@@ -15,12 +15,20 @@
 
     <div class="box">
         <h2>Daftar Kamar Kos</h2>
+        <form action="/kamar" method="POST">
+            <input type="text" name="nomor_kamar" placeholder="Nomor kamar baru" required>
+            <input type="text" name="tipe" placeholder="Tipe kamar (contoh: Reguler)" required>
+            <input type="number" name="harga_per_bulan" placeholder="Harga per bulan" required>
+            <button type="submit">Tambah Kamar</button>
+        </form>
+
         <table>
             <tr>
                 <th>Nomor Kamar</th>
                 <th>Tipe</th>
                 <th>Harga / Bulan</th>
                 <th>Status</th>
+                <th>Aksi</th>
             </tr>
             {% for k in daftar_kamar %}
             <tr>
@@ -28,7 +36,16 @@
                 <td>{{ k.tipe }}</td>
                 <td>Rp{{ "{:,}".format(k.harga_per_bulan) }}</td>
                 <td class="{{ k.status }}">{{ k.status }}</td>
+                <td class="aksi">
+                    <a href="/kamar/edit/{{ k.nomor_kamar }}" class="btn-edit">Edit</a>
+                    <form action="/kamar/hapus/{{ k.nomor_kamar }}" method="POST"
+                          onsubmit="return confirm('Yakin hapus Kamar {{ k.nomor_kamar }}?')">
+                        <button type="submit" class="btn-merah">Hapus</button>
+                    </form>
+                </td>
             </tr>
+            {% else %}
+            <tr><td colspan="5">Belum ada data kamar.</td></tr>
             {% endfor %}
         </table>
     </div>
@@ -47,26 +64,34 @@
                 <th>ID</th>
                 <th>Nama</th>
                 <th>No. Telepon</th>
+                <th>Aksi</th>
             </tr>
             {% for p in daftar_penyewa %}
             <tr>
                 <td>{{ p.id_penyewa }}</td>
                 <td>{{ p.nama }}</td>
                 <td>{{ p.no_telepon }}</td>
+                <td class="aksi">
+                    <a href="/penyewa/edit/{{ p.id_penyewa }}" class="btn-edit">Edit</a>
+                    <form action="/penyewa/hapus/{{ p.id_penyewa }}" method="POST"
+                          onsubmit="return confirm('Yakin hapus penyewa {{ p.nama }}?')">
+                        <button type="submit" class="btn-merah">Hapus</button>
+                    </form>
+                </td>
             </tr>
             {% else %}
-            <tr><td colspan="3">Belum ada data penyewa.</td></tr>
+            <tr><td colspan="4">Belum ada data penyewa.</td></tr>
             {% endfor %}
         </table>
     </div>
 
     <div class="box">
         <h2>Proses Sewa Kamar</h2>
-        {% if daftar_penyewa %}
+        {% if daftar_penyewa and daftar_kamar %}
         <form action="/sewa" method="POST">
-            <select name="index_penyewa">
+            <select name="id_penyewa">
                 {% for p in daftar_penyewa %}
-                <option value="{{ loop.index0 }}">{{ p.nama }} ({{ p.id_penyewa }})</option>
+                <option value="{{ p.id_penyewa }}">{{ p.nama }} ({{ p.id_penyewa }})</option>
                 {% endfor %}
             </select>
 
@@ -83,17 +108,17 @@
             <button type="submit">Proses Sewa</button>
         </form>
         {% else %}
-        <p>Input data penyewa terlebih dahulu.</p>
+        <p>Input data penyewa dan kamar terlebih dahulu.</p>
         {% endif %}
     </div>
 
     <div class="box">
         <h2>Pembayaran Sewa</h2>
-        {% if daftar_sewa %}
+        {% if daftar_sewa_aktif %}
         <form action="/bayar" method="POST">
-            <select name="index_sewa">
-                {% for s in daftar_sewa %}
-                <option value="{{ loop.index0 }}">
+            <select name="id_sewa">
+                {% for s in daftar_sewa_aktif %}
+                <option value="{{ s.id_sewa }}">
                     {{ s.penyewa.nama }} - Kamar {{ s.kamar.nomor_kamar }} (Tagihan: Rp{{ "{:,}".format(s.hitung_total()) }})
                 </option>
                 {% endfor %}
@@ -112,6 +137,7 @@
                 <th>Tanggal Bayar</th>
                 <th>Jumlah Dibayar</th>
                 <th>Status</th>
+                <th>Aksi</th>
             </tr>
             {% for p in daftar_pembayaran %}
             <tr>
@@ -120,9 +146,15 @@
                 <td>{{ p.tanggal_bayar }}</td>
                 <td>Rp{{ "{:,}".format(p.jumlah) }}</td>
                 <td><strong>{{ "Lunas" if p.cek_lunas() else "Belum Lunas" }}</strong></td>
+                <td class="aksi">
+                    <form action="/pembayaran/hapus/{{ p.id_pembayaran }}" method="POST"
+                          onsubmit="return confirm('Yakin hapus data pembayaran ini?')">
+                        <button type="submit" class="btn-merah">Hapus</button>
+                    </form>
+                </td>
             </tr>
             {% else %}
-            <tr><td colspan="5">Belum ada data pembayaran.</td></tr>
+            <tr><td colspan="6">Belum ada data pembayaran.</td></tr>
             {% endfor %}
         </table>
     </div>
@@ -145,13 +177,16 @@
                 <td>{{ s.tanggal_mulai }} ({{ s.durasi_bulan }} bln)</td>
                 <td>Rp{{ "{:,}".format(s.hitung_total()) }}</td>
                 <td>{{ "Aktif" if s.aktif else "Selesai" }}</td>
-                <td>
+                <td class="aksi">
                     {% if s.aktif %}
-                    <form action="/checkout/{{ loop.index0 }}" method="POST">
+                    <form action="/checkout/{{ s.id_sewa }}" method="POST">
                         <button type="submit" class="btn-merah">Akhiri Sewa</button>
                     </form>
                     {% else %}
-                    -
+                    <form action="/sewa/hapus/{{ s.id_sewa }}" method="POST"
+                          onsubmit="return confirm('Yakin hapus data sewa ini beserta pembayarannya?')">
+                        <button type="submit" class="btn-merah">Hapus</button>
+                    </form>
                     {% endif %}
                 </td>
             </tr>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Penyewa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Edit Data Penyewa</h1>
+
+    <div class="box">
+        <form action="/penyewa/edit/{{ penyewa.id_penyewa }}" method="POST">
+            <label>ID Penyewa</label>
+            <input type="text" value="{{ penyewa.id_penyewa }}" disabled>
+
+            <label>Nama</label>
+            <input type="text" name="nama" value="{{ penyewa.nama }}" required>
+
+            <label>No. Telepon</label>
+            <input type="text" name="no_telepon" value="{{ penyewa.no_telepon }}" required>
+
+            <button type="submit">Simpan Perubahan</button>
+        </form>
+        <p><a href="/">Kembali ke halaman utama</a></p>
+    </div>
+
+</body>
+</html>

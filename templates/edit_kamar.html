@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Kamar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Edit Data Kamar</h1>
+
+    <div class="box">
+        <form action="/kamar/edit/{{ kamar.nomor_kamar }}" method="POST">
+            <label>Nomor Kamar</label>
+            <input type="text" value="{{ kamar.nomor_kamar }}" disabled>
+
+            <label>Tipe</label>
+            <input type="text" name="tipe" value="{{ kamar.tipe }}" required>
+
+            <label>Harga / Bulan</label>
+            <input type="number" name="harga_per_bulan" value="{{ kamar.harga_per_bulan }}" required>
+
+            <button type="submit">Simpan Perubahan</button>
+        </form>
+        <p><a href="/">Kembali ke halaman utama</a></p>
+    </div>
+
+</body>
+</html>

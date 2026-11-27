@@ -1,10 +1,14 @@
 class Sewa:
-    def __init__(self, penyewa, kamar, tanggal_mulai, durasi_bulan):
+    def __init__(self, penyewa, kamar, tanggal_mulai, durasi_bulan, aktif=False, id_sewa=None):
+        if not isinstance(durasi_bulan, int) or durasi_bulan <= 0:
+            raise ValueError("Durasi sewa harus lebih dari 0 bulan.")
+
+        self.id_sewa = id_sewa
         self.penyewa = penyewa
         self.kamar = kamar
         self.tanggal_mulai = tanggal_mulai
         self.durasi_bulan = durasi_bulan
-        self.aktif = False
+        self.aktif = aktif
 
     def proses_sewa(self):
         if not self.kamar.tersedia():
