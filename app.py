@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from kamar import Kamar
 from penyewa import Penyewa
 from sewa import Sewa
+from pembayaran import Pembayaran
 
 app = Flask(__name__)
 
@@ -14,6 +15,7 @@ daftar_kamar[2].sewakan()
 
 daftar_penyewa = []
 daftar_sewa = []
+daftar_pembayaran = []
 pesan_hasil = ""
 
 
@@ -27,6 +29,7 @@ def index():
         daftar_kamar=daftar_kamar,
         daftar_penyewa=daftar_penyewa,
         daftar_sewa=daftar_sewa,
+        daftar_pembayaran=daftar_pembayaran,
         pesan=pesan
     )
 
@@ -73,6 +76,23 @@ def sewa_kamar():
     else:
         pesan_hasil = f"Maaf, Kamar {nomor_kamar} tidak tersedia."
 
+    return redirect(url_for("index"))
+
+
+@app.route("/bayar", methods=["POST"])
+def bayar_sewa():
+    global pesan_hasil
+    index_sewa = int(request.form["index_sewa"])
+    jumlah = int(request.form["jumlah"])
+    tanggal_bayar = request.form["tanggal_bayar"]
+
+    sewa_dipilih = daftar_sewa[index_sewa]
+    pembayaran_baru = Pembayaran(sewa_dipilih, jumlah, tanggal_bayar)
+    pembayaran_baru.catat_pembayaran()
+    daftar_pembayaran.append(pembayaran_baru)
+
+    status = "Lunas" if pembayaran_baru.cek_lunas() else "Belum Lunas"
+    pesan_hasil = f"Pembayaran {sewa_dipilih.penyewa.nama} sebesar Rp{jumlah:,} dicatat ({status})."
     return redirect(url_for("index"))
 
 

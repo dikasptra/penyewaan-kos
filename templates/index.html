@@ -88,6 +88,46 @@
     </div>
 
     <div class="box">
+        <h2>Pembayaran Sewa</h2>
+        {% if daftar_sewa %}
+        <form action="/bayar" method="POST">
+            <select name="index_sewa">
+                {% for s in daftar_sewa %}
+                <option value="{{ loop.index0 }}">
+                    {{ s.penyewa.nama }} - Kamar {{ s.kamar.nomor_kamar }} (Tagihan: Rp{{ "{:,}".format(s.hitung_total()) }})
+                </option>
+                {% endfor %}
+            </select>
+
+            <input type="number" name="jumlah" placeholder="Masukkan jumlah bayar" required>
+            <input type="date" name="tanggal_bayar" required>
+            <button type="submit">Catat Pembayaran</button>
+        </form>
+        {% endif %}
+
+        <table>
+            <tr>
+                <th>Penyewa</th>
+                <th>Kamar</th>
+                <th>Tanggal Bayar</th>
+                <th>Jumlah Dibayar</th>
+                <th>Status</th>
+            </tr>
+            {% for p in daftar_pembayaran %}
+            <tr>
+                <td>{{ p.sewa.penyewa.nama }}</td>
+                <td>Kamar {{ p.sewa.kamar.nomor_kamar }}</td>
+                <td>{{ p.tanggal_bayar }}</td>
+                <td>Rp{{ "{:,}".format(p.jumlah) }}</td>
+                <td><strong>{{ "Lunas" if p.cek_lunas() else "Belum Lunas" }}</strong></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Belum ada data pembayaran.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="box">
         <h2>Pengakhiran Sewa</h2>
         <table>
             <tr>
